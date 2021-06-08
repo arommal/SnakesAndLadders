@@ -7,6 +7,35 @@ using namespace std;
 
 void printBoard(vector< list<int> > adj) {}
 
+void BFS(vector< list<int> > adj, int parent[], int level[], int start)
+{
+    list<int>::iterator itr;
+
+    level[start] = 0;
+
+    list<int> queue; 
+    queue.push_back(start);
+    
+    while (!queue.empty()) 
+    {
+        int newVertex = queue.front();
+ 
+        itr = adj[newVertex].begin();
+ 
+        while (itr != adj[newVertex].end()) {
+            if (level[*itr] == -1) {               
+                level[*itr] = level[newVertex] + 1; 
+                parent[*itr] = newVertex;          
+                queue.push_back(*itr);              
+            }
+
+            ++itr;
+        }
+
+        queue.pop_front();
+    }
+}
+
 int main() {
     int boardSize, numOfLadders, numOfSnakes, a, b;
     cout << "Enter size of board" << endl;
@@ -41,6 +70,17 @@ int main() {
         cout << "- ";
         cin >> a >> b;
     }
+    
+    int parent[boardSize];
+    int level[boardSize];
 
+    // Initialising our arrays
+    // for (int i = 0; i <= boardSize; ++i) {
+    //     parent[i] = -1;
+    //     level[i] = -1;
+    // }
+    
+    BFS(adj, parent, level, 1);
+    
     printBoard(adj);
 }
