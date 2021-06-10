@@ -5,7 +5,64 @@
 
 using namespace std;
 
-void printBoard(vector< list<int> > adj) {}
+int breakpoint, boardSize, numOfLadders, numOfSnakes, a, b;
+
+void printBoard(vector< list<int> > adj, vector< list<int> > temp, int curpos) {
+    int i, val, counter = 0, decrease = 1, zig = 1, id;
+
+    for(i = adj.size()-1; i > 0; i--) {
+        if (zig == 1) {
+            val = i;
+        } else if (zig == -1) {
+            val = i - (breakpoint - 1 - (2 * (counter)));
+        }
+
+        if (val == curpos) {
+            cout << "<" << val << ">";
+        } else {
+            cout << val;
+        }
+
+        counter++;
+
+        if(val != temp[val].back())
+            cout << "(" << temp[val].back() << ")";
+
+        if(counter == breakpoint) {
+            cout << endl;
+            zig *= -1;
+            counter = 0;
+        } else {
+            cout << "\t";
+        }
+    }
+    cout << endl;
+}
+
+void printIteration(vector< list<int> > adj, vector< list<int> > temp, int parent[], int dest) {
+    if(parent[dest] == -1) {
+        // printBoard(adj, temp, dest);
+        cout << dest << " -> " << endl;
+    } else {
+        printIteration(adj, temp, parent, parent[dest]);
+        cout << dest << " -> " << endl;
+
+        // printBoard(adj, temp, dest);
+    }
+}
+
+vector< list<int> > replacePreceding(vector< list<int> >adj, vector< list<int> >temp, int oldVal, int newVal) {
+    int precede = oldVal - 1;
+
+    temp[oldVal].pop_back();
+    temp[oldVal].push_back(newVal);
+
+    for(precede; precede >= 0 && precede >= oldVal-6; precede--) {
+        replace(adj[precede].begin(), adj[precede].end(), oldVal, newVal);
+    }
+
+    return temp;
+}
 
 void BFS(vector< list<int> > adj, int parent[], int level[], int start)
 {
@@ -37,16 +94,21 @@ void BFS(vector< list<int> > adj, int parent[], int level[], int start)
 }
 
 int main() {
-    int boardSize, numOfLadders, numOfSnakes, a, b;
-    cout << "Enter size of board" << endl;
-    cin >> boardSize;
+    cout << "Enter width of board" << endl;
+    cout << "Recommended Width: 10" << endl;
+    cin >> breakpoint;
+    boardSize = breakpoint * breakpoint;
 
-    vector< list<int> > adj(boardSize);
+    vector< list<int> >adj(boardSize+1);
+    vector< list<int> >temp(boardSize+1);
 
-    for(int i=1; i<=boardSize; i++) {
-        for(int j=1+1; j<=i+6 && j<=boardSize; j++) {
+    cout<< "You will be making a " << breakpoint << " x " << breakpoint << " board" << endl;
+
+    for(int i = 1; i <= boardSize; i++) {
+        for(int j = i+1; j <= i+6 && j <= boardSize; j++) {
             adj[i].push_back(j);
         }
+        temp[i].push_back(i);
     }
 
     // Ladders
@@ -55,9 +117,10 @@ int main() {
 
     cout << endl << "Enter ladder routes" << endl;
 
-    for(int i=1; i<=numOfLadders; i++) {
+    for(int i = 1; i <=numOfLadders; i++) {
         cout << "- ";
         cin >> a >> b;
+        temp = replacePreceding(adj, temp, a, b);
     }
     
     // Snakes
@@ -66,21 +129,26 @@ int main() {
 
     cout << endl << "Enter snake routes" << endl;
 
-    for(int i=1; i<=numOfSnakes; i++) {
+    for(int i = 1; i <= numOfSnakes; i++) {
         cout << "- ";
         cin >> a >> b;
+        temp = replacePreceding(adj, temp, a, b);
     }
     
+    cout << endl << "Initial board" << endl;
+    printBoard(adj, temp, 1);
+
     int parent[boardSize];
     int level[boardSize];
 
     // Initialising our arrays
-    // for (int i = 0; i <= boardSize; ++i) {
-    //     parent[i] = -1;
-    //     level[i] = -1;
-    // }
+    for (int i = 1; i <= boardSize; i++) {
+        parent[i] = -1;
+        level[i] = -1;
+    }
     
     BFS(adj, parent, level, 1);
+
+    printIteration(adj, temp, parent, boardSize);
     
-    printBoard(adj);
 }
