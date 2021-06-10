@@ -57,7 +57,7 @@ void printIteration(vector< list<int> > adj, vector< list<int> > temp, int paren
         printBoard(adj, temp, dest);
     } else {
         printIteration(adj, temp, parent, parent[dest]);
-        printBoard(adj, temp, dest);
+        // printBoard(adj, temp, dest);
     }
 }
 
@@ -67,6 +67,8 @@ void replacePreceding(vector< list<int> >&adj, vector< list<int> >&temp, int old
 
     temp[oldVal].pop_back();
     temp[oldVal].push_back(newVal);
+
+    adj[oldVal].clear();
 
     for(precede; precede >= 0 && precede >= oldVal-6; --precede) {
         replace(adj[precede].begin(), adj[precede].end(), oldVal, newVal);
@@ -162,4 +164,6 @@ int main() {
     BFS(adj, parent, level, 1);
 
     printIteration(adj, temp, parent, boardSize);
+
+    cout << "Minimum moves: " << level[boardSize];
 }
